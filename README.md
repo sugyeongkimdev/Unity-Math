@@ -22,6 +22,17 @@
 ### [Vector Dot](https://github.com/sugyeongkimdev/Unity-Math/blob/main/Assets/Script/Graph_VectorMath.cs)
 ![VectorDot](https://user-images.githubusercontent.com/51020780/133616060-adb2fd8f-095c-48df-b52d-6585c292bf93.gif)
 
+
+---
+
+### [Vector Cross](https://github.com/sugyeongkimdev/Unity-Math/blob/main/Assets/Script/Graph_VectorMath.cs)
+![VectorCross](https://user-images.githubusercontent.com/51020780/134502100-0d17a31a-c2f8-4ee3-a086-5f0294d389ff.gif)
+
+---
+
+### [Vector Reflection](https://github.com/sugyeongkimdev/Unity-Math/blob/main/Assets/Script/Graph_VectorMath.cs)
+![VectorReflection](https://user-images.githubusercontent.com/51020780/134502109-0438b9f4-f05b-410e-9ce0-f60da8371cbb.gif)
+
 ---
 
 ### [Trigonometric Function](https://github.com/sugyeongkimdev/Unity-Math/blob/main/Assets/Script/Graph_TrigonometricFunction.cs)
