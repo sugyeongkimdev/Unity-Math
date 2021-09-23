@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Graph_VectorMath : Graph
 {
-    [Range (1, 4)] public int select = 1;
+    [Range (1, 6)] public int select = 1;
 
     [Space]
     public Vector3 posA = new Vector3 (3, 4, 0);
@@ -27,22 +27,16 @@ public class Graph_VectorMath : Graph
         }
         dragBindA = gameObject.AddComponent<DragBind> ();
         dragBindB = gameObject.AddComponent<DragBind> ();
-        dragBindA.UpdatePos (posA);
-        dragBindB.UpdatePos (posB);
+        dragBindA.ResetPos (posA);
+        dragBindB.ResetPos (posB);
     }
 
     protected override void OnDrawGizmos ()
     {
         base.OnDrawGizmos ();
-
-        if(!dragBindA || !dragBindB)
-        {
-            return;
-        }
-
-        // 드래그 값
-        posA = dragBindA.dragPos;
-        posB = dragBindB.dragPos;
+        // 드래그 업데이트
+        dragBindA.UpdatePos (out posA);
+        dragBindB.UpdatePos (out posB);
 
         // 기본 그리기
         GraphHelp.Line (zero, posA, Color.magenta, 3);
@@ -58,11 +52,10 @@ public class Graph_VectorMath : Graph
             case 02: DrawMinus (); break;
             case 03: DrawNormal (); break;
             case 04: DrawDot (); break;
+            case 05: DrawCross (); break;
+            case 06: DrawReflection (); break;
         }
 
-        // 드래그 마지막 값 업데이트
-        dragBindA.UpdatePos (posA);
-        dragBindB.UpdatePos (posB);
     }
 
     //==========================================================//
@@ -115,74 +108,116 @@ public class Graph_VectorMath : Graph
         // (1/√2)² + (1/√2)² = 1/2 + 1/2 = 1 
     }
 
-    // 04. 벡터 내적 계산(Dot)
+    // 04. 벡터 내적 계산(Dot Product)
     private void DrawDot ()
     {
-        // ※ 작성중
-
-        // 내적계산이란 두 벡터간의 각도계산을 뜻함
-        // A·B == |A| |B| cosθ
-        // A·B = Vector3.Dot(A, B) = (A.x * B.x) + (A.y * B.y) + (A.z * B.z)
+        // 내적계산이란 두 벡터간의 스칼라값(각도) 계산
+        // 값이 0이면 두 벡터의 각이 90도, 0보다 크면 90도보다 작고, 0보다 작으면 90도보다 크다
+        // A·B == |A||B|cosθ
+        // A·B == Vector3.Dot(A, B) == (A.x * B.x) + (A.y * B.y) + (A.z * B.z)
 
         Vector2 boxSize = new Vector2 (2, 2);
         Vector3[] normalArr = GraphHelp.Box (posA, boxSize.x, boxSize.y, rotateA);
 
-        // 상자의 사이드 노말(방향)
-        Vector3 dirUp = normalArr[0];
-        Vector3 dirDown = normalArr[1];
-        Vector3 dirLeft = normalArr[2];
-        Vector3 dirRight = normalArr[3];
-
         // 상자의 사이드 위치
-        Vector3 posUp = posA + dirUp * boxSize.y / 2f;
-        Vector3 posDown = posA + dirDown * boxSize.y / 2f;
-        Vector3 posLeft = posA + dirLeft * boxSize.x / 2f; ;
-        Vector3 posRight = posA + dirRight * boxSize.x / 2f; ;
+        Vector3 posUp = normalArr[0] * boxSize.y / 2f;
+        Vector3 posDown = normalArr[1] * boxSize.y / 2f;
+        Vector3 posLeft = normalArr[2] * boxSize.x / 2f;
+        Vector3 posRight = normalArr[3] * boxSize.x / 2f;
+        Vector3 posFront = normalArr[4] * boxSize.x / 2f;
+        Vector3 posBack = normalArr[5] * boxSize.x / 2f;
 
-        // 노말 그리기
-        GraphHelp.Line (posUp, posUp + dirUp, Color.yellow);
-        GraphHelp.Line (posDown, posDown + dirDown, Color.yellow);
-        GraphHelp.Line (posLeft, posLeft + dirLeft, Color.yellow);
-        GraphHelp.Line (posRight, posRight + dirRight, Color.yellow);
-        GraphHelp.Line (posB, posB + (posA - posB).normalized, Color.yellow);
         // 각 노말에서 B까지의 선 그리기
-        GraphHelp.Line (posUp, posB, Color.blue);
-        GraphHelp.Line (posDown, posB, Color.blue);
-        GraphHelp.Line (posLeft, posB, Color.blue);
-        GraphHelp.Line (posRight, posB, Color.blue);
+        GraphHelp.Line (posA + posUp, posB, Color.blue);
+        GraphHelp.Line (posA + posDown, posB, Color.blue);
+        GraphHelp.Line (posA + posLeft, posB, Color.blue);
+        GraphHelp.Line (posA + posRight, posB, Color.blue);
+        GraphHelp.Line (posA + posFront, posB, Color.blue);
+        GraphHelp.Line (posA + posBack, posB, Color.blue);
 
         // 호 그리기
-        DrawArc (posUp, dirUp);
-        DrawArc (posDown, dirDown);
-        DrawArc (posLeft, dirLeft);
-        DrawArc (posRight, dirRight);
+        DrawArc (posUp, normalArr[0]);
+        DrawArc (posDown, normalArr[1]);
+        DrawArc (posLeft, normalArr[2]);
+        DrawArc (posRight, normalArr[3]);
+        DrawArc (posFront, normalArr[4]);
+        DrawArc (posBack, normalArr[5]);
         void DrawArc (Vector3 pos, Vector3 normal)
         {
-            float angle = GraphHelp.Angle (pos, posB, normal);
+            float angle = GraphHelp.Angle (posA + pos, posB, normal);
             Color color = angle > 90 ? Color.red : Color.green;
-            GraphHelp.SolidArc (pos, posB, normal, color);
+            GraphHelp.SolidArc (posA + pos, posB, normal, color);
         }
 
         //===//
 
-        var dotUp = Vector3.Dot ((posB - posUp).normalized, dirUp);
-        var dotDown = Vector3.Dot ((posB - posDown).normalized, dirDown);
-        var dotLeft = Vector3.Dot ((posB - posLeft).normalized, dirLeft);
-        var dotRight = Vector3.Dot ((posB - posRight).normalized, dirRight);
+        // 내적 계산식 (A·B)
+        var ab = posB - posA;
+        var abUp = ab - posUp;
+        var abBack = ab - posBack;
 
-        GraphHelp.Label (dotUp, posUp);
-        GraphHelp.Label (dotDown, posDown);
-        GraphHelp.Label (dotLeft, posLeft);
-        GraphHelp.Label (dotRight, posRight);
+        var dotUp = Vector3.Dot (posUp, ab - posUp);
+        var dotDown = Vector3.Dot (posDown, ab - posDown);
+        var dotLeft = Vector3.Dot (posLeft, ab - posLeft);
+        var dotRight = Vector3.Dot (posRight, ab - posRight);
+        var dotFront = Vector3.Dot (posFront, ab - posFront);
+        var dotBack = Vector3.Dot (posBack, ab - posBack);
 
-        // ※ 내적 계산 작성중
-        // ※ 작성중
-        //var dotUp2 =  ((posB - posUp).x * dirUp.x) + ((posB - posUp).y * dirUp.y) + ((posB - posUp).z * dirUp.z);
-        //var dotDown2 = (posUp.x * posB.x) + (posUp.y * posB.y) + (posUp.z * posB.z);
-        //var dotLeft2 = (posUp.x * posB.x) + (posUp.y * posB.y) + (posUp.z * posB.z);
-        //var dotRight2 = (posUp.x * posB.x) + (posUp.y * posB.y) + (posUp.z * posB.z);
+        // 위와 같은 내적(dot) 계산식
+        var dotUp2 = (posUp.x * abUp.x) + (posUp.y * abUp.y) + (posUp.z * abUp.z);
+        var dotBack2 = (posBack.x * abBack.x) + (posBack.y * abBack.y) + (posBack.z * abBack.z);
 
+        // 위 값을 정규화하여 내적계산 (-1 ~ 0 ~ 1)
+        var dotUp3 = Vector3.Dot (normalArr[0], abUp.normalized);
+        var dotBack3 = Vector3.Dot (normalArr[5], abBack.normalized);
 
+        // 내적 값 표시
+        GraphHelp.Label (dotUp, posA + posUp, size: 12);
+        GraphHelp.Label (dotDown, posA + posDown, size: 12);
+        GraphHelp.Label (dotLeft, posA + posLeft, size: 12);
+        GraphHelp.Label (dotRight, posA + posRight, size: 12);
+        GraphHelp.Label (dotFront, posA + posFront, size: 12);
+        GraphHelp.Label (dotBack, posA + posBack, size: 12);
+    }
+
+    // 05. 벡터 외적 계산(Cross Product)
+    private void DrawCross ()
+    {
+        // 외적계산은 두 벡터의 수직을 계산
+        // AXB == n|A||B|sinθ (normal * A * B * sinAB)
+        // AXB == Vector3.Cross(A, B) == new Vector3 (
+        //      A.y * B.z - A.z * B.y,
+        //      A.z * B.x - A.x * B.z,
+        //      A.x * B.y - A.y * B.x)
+
+        // 벡터 외적 계산
+        var posCross1 = Vector3.Cross(posA, posB);
+        // 위와 같은 결과의 벡터 외적 계산식
+        var posCross2 = new Vector3 (
+              posA.y * posB.z - posA.z * posB.y,
+              posA.z * posB.x - posA.x * posB.z,
+              posA.x * posB.y - posA.y * posB.x);
+
+        GraphHelp.Line (zero, posCross1, thick:3);
+    }
+
+    // 06. 벡터 내적을 이용한 반사 계산 (vector direction reflection)
+    // http://lab.gamecodi.com/board/zboard.php?id=GAMECODILAB_Lecture_series&no=125
+    private void DrawReflection ()
+    {
+        // reflect = p + 2n ( -p * n )
+        // reflect = velocity + 2 normal + Vector3.Dot(-velocity, normal);
+
+        Vector3 vel =  posB - posA;
+        Vector3 nor = Vector3.up;
+        Vector3 dot2 = 2 * nor * Vector3.Dot (-vel, nor);
+        Vector3 reflectionA1 = vel + dot2;
+
+        GraphHelp.Line (posB, posB + dot2);
+        GraphHelp.Line (posB + dot2, posB + reflectionA1);
+
+        GraphHelp.Line (posB, posA, Color.magenta);
+        GraphHelp.Line (posB, posB + reflectionA1,Color.magenta);
     }
 
 

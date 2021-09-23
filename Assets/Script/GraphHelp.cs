@@ -33,8 +33,8 @@ public static class GraphHelp
             case int i: str = i.ToString (); break;
             case float f: str = $"{f:0.##}"; break;
             case string s: str = s; break;
-            case Vector2 vec2: str = vec2.ToString (); break;
-            case Vector3 vec3: str = vec3.ToString (); break;
+            case Vector2 vec2: str = $"({vec2.x:0.##}, {vec2.y:0.##})"; break;
+            case Vector3 vec3: str = $"({vec3.x:0.##}, {vec3.y:0.##}, {vec3.z:0.##})"; break;
         }
 
         color = color.HasValue ? color.Value : Color.white;
@@ -216,7 +216,6 @@ public static class GraphHelp
     public static void SolidArc (Vector3 from, Vector3 to, Vector3 normal, Color? color = null, float radius = 1f)
     {
         // 색상
-        Color saveColor = Handles.color;
         Color arcColor = color.HasValue ? color.Value : Color.white;
         arcColor.a = 0.15f;
         Handles.color = arcColor;
@@ -227,8 +226,6 @@ public static class GraphHelp
         float angle = Angle (from, to, normal);
         Vector3 cross = Vector3.Cross (subPos - from, to - from);
         Handles.DrawSolidArc (from, cross, subPos - from, angle, radius);
-
-        Handles.color = saveColor;
     }
 
     // 각도 구하기
@@ -241,10 +238,16 @@ public static class GraphHelp
     //==========================================================//
 
     // 구체 그리기
-    public static void Sphere (Vector3 pos, float size = 0.1f)
+    public static void Sphere (Vector3 pos, Color? color = null, float size = 0.1f)
     {
-        Gizmos.color = Color.yellow;
+        Gizmos.color = color.HasValue ? color.Value : Color.white;
         Gizmos.DrawSphere (pos, size);
+    }
+    // 선 구체 그리기
+    public static void WireSphere (Vector3 pos, Color? color = null, float size = 0.1f)
+    {
+        Gizmos.color = color.HasValue ? color.Value : Color.white;
+        Gizmos.DrawWireSphere (pos, size);
     }
 
 }

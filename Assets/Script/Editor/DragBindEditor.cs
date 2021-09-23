@@ -10,7 +10,7 @@ public class DragBindEditor : Editor
         if(target is DragBind help)
         {
             Undo.RecordObject (help, nameof (DragBind));
-            help.dragPos = Handles.PositionHandle (help.dragPos, Quaternion.identity);
+            help.ResetPos (Handles.PositionHandle (help.dragPos, Quaternion.identity));
         }
     }
 }

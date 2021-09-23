@@ -231,7 +231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7211bb57c0d3464ab950e43cc04fae2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dragPos: {x: 6.5, y: 2.5, z: 0}
+  dragPos: {x: 6, y: 2, z: 0}
 --- !u!114 &780195192
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244,7 +244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7211bb57c0d3464ab950e43cc04fae2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dragPos: {x: 3, y: 4, z: 0}
+  dragPos: {x: -1.9501996, y: 0.44353294, z: 0}
 --- !u!114 &780195193
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -257,9 +257,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 110211a5c24f3bc469083717125b3ee6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pos: {x: 3, y: 4, z: 0}
-  windowPos: {x: 6.5, y: 2.5, z: 0}
-  select: 1
+  pos: {x: 0.5909896, y: -1.9106888, z: 0}
+  windowPos: {x: 6, y: 2, z: 0}
+  select: 2
   dragBindPoint: {fileID: 780195192}
   dragBindWindow: {fileID: 780195191}
 --- !u!4 &780195194
