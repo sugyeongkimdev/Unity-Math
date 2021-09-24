@@ -1,10 +1,15 @@
+#if UNITY_EDITOR
+
 using UnityEngine;
 
 // 삼각함수
+[ExecuteAlways]
 public class Graph_TrigonometricFunction : Graph
 {
-    public Vector3 pos = new Vector3 (3, 4, 0);
-    public Vector3 windowPos = new Vector3 (6, 2, 0);
+    [Header ("Value")]
+    public Vector3 pos = resetPos;
+    [Range (0, 360f)] public float angle = Vector2.Angle (Vector2.up, resetPos);
+    [Range (1f, 10f)] public float radius = 5f;
 
     private Vector3 posA;
     private Vector3 posB;
@@ -22,12 +27,15 @@ public class Graph_TrigonometricFunction : Graph
     private float cec; // 시컨트(secant)
     private float cot; // 코탄젠트(cotangent)
 
-    [Range (1, 2)] public int select = 1;
-
     // 드래그 지원
     [Space]
     public DragBind dragBindPoint;
-    public DragBind dragBindWindow;
+
+    //==========================================================//
+
+    // 삼각함수 reset 값
+    private static readonly Vector3 resetPos = new Vector3 (3, 4, 0);
+    private Vector3 circlePos;
 
     //==========================================================//
 
@@ -40,9 +48,7 @@ public class Graph_TrigonometricFunction : Graph
         }
 
         dragBindPoint = gameObject.AddComponent<DragBind> ();
-        dragBindWindow = gameObject.AddComponent<DragBind> ();
         dragBindPoint.ResetPos (pos);
-        dragBindWindow.ResetPos (windowPos);
     }
 
     protected override void OnDrawGizmos ()
@@ -50,15 +56,11 @@ public class Graph_TrigonometricFunction : Graph
         base.OnDrawGizmos ();
         // 드래그 업데이트
         dragBindPoint.UpdatePos (out pos);
-        dragBindWindow.UpdatePos (out windowPos);
 
-        Calculate ();
-
-        switch(select)
-        {
-            case 01: DrawTriangle (); break;
-            case 02: DrawTimeGraphRect (); break;
-        }
+        Calculate (); 
+        DrawTriangle ();
+        DrawCircle ();
+        DrawInfo ();
     }
 
     //==========================================================//
@@ -133,9 +135,10 @@ public class Graph_TrigonometricFunction : Graph
         GraphHelp.Label ("B", posB + labelOff, Color.magenta);
         GraphHelp.Label ("C", posC + labelOff, Color.magenta);
 
-        var hypotenuse = GraphHelp.Bezier (posA, posB); // 빗변 h
-        var opposite = GraphHelp.Bezier (posB, posC);   // 높이 a
-        var adjacent = GraphHelp.Bezier (posC, posA);   // 밑변 b
+        bool reverse = pos.x < zero.x ^ pos.y < zero.y;
+        var hypotenuse = GraphHelp.Bezier (posA, posB, reverse); // 빗변 h
+        var opposite = GraphHelp.Bezier (posB, posC, reverse);   // 높이 a
+        var adjacent = GraphHelp.Bezier (posC, posA, reverse);   // 밑변 b
 
         GraphHelp.Label ($"h({h:0.##})", hypotenuse, size: 12);
         GraphHelp.Label ($"a({a:0.##})", opposite, size: 12);
@@ -145,26 +148,38 @@ public class Graph_TrigonometricFunction : Graph
         GraphHelp.SolidTriangle (posA, posB, posC);
     }
 
-    // 시간의 흐름 그래프 그리기
-    float time;
-    private void DrawTimeGraphRect ()
+    // 원 그리기
+    private void DrawCircle ()
     {
-        // ※ 작성중
-        time += Time.deltaTime;
-        time %= 1f;
+        GraphHelp.Disk (zero, null, radius);
 
-        float size = 4f;
-        GraphHelp.Box (windowPos, size, size);
-        GraphHelp.WireSphere (zero, size:2);
+        float x = Mathf.Sin (angle / 180f * Mathf.PI) * radius;
+        float y = Mathf.Cos (angle / 180f * Mathf.PI) * radius;
+        var newCirclePos = new Vector3 (x, y, 0);
+        if(circlePos != newCirclePos)
+        {
+            circlePos = newCirclePos;
+            dragBindPoint.ResetPos (circlePos);
+        }
+    }
 
-        var circlePos = new Vector3 (Mathf.Sin (time * Mathf.PI * 2) * (size/2f), Mathf.Cos (time * Mathf.PI * 2)* (size / 2f), 0);
-        dragBindPoint.ResetPos (circlePos);
-        GraphHelp.Sphere (circlePos);
+    private void DrawInfo ()
+    {
+        Vector3 boxSize = new Vector3 (2f, 2f);
+        Vector3 boxPos = new Vector3 (boxSize.x + radius, boxSize.y);
+        Vector3 labelPos = boxPos - new Vector3 (boxSize.x, boxSize.y) / 2f;
 
+        // 상자 및 보조선 그리기
+        GraphHelp.Box (boxPos, boxSize);
+        GraphHelp.Line (boxPos + new Vector3 (-boxSize.x, 0) / 2f, boxPos + new Vector3 (boxSize.x, 0) / 2f, Color.red);
+        GraphHelp.Line (boxPos + new Vector3 (0, -boxSize.y) / 2f, boxPos + new Vector3 (0, boxSize.y) / 2f, Color.green);
 
+        GraphHelp.Label ($"Sin\t{sin}\nCos\t{cos}\nTan\t{tan}", labelPos);
     }
 
     //==========================================================//
 
 
 }
+
+#endif

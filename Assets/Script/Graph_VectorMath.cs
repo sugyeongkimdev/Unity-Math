@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using UnityEngine;
 
 public class Graph_VectorMath : Graph
@@ -116,16 +118,16 @@ public class Graph_VectorMath : Graph
         // A·B == |A||B|cosθ
         // A·B == Vector3.Dot(A, B) == (A.x * B.x) + (A.y * B.y) + (A.z * B.z)
 
-        Vector2 boxSize = new Vector2 (2, 2);
-        Vector3[] normalArr = GraphHelp.Box (posA, boxSize.x, boxSize.y, rotateA);
+        Vector3 boxSize = new Vector3 (2, 2, 2);
+        Vector3[] normalArr = GraphHelp.Box (posA, boxSize, rotateA);
 
         // 상자의 사이드 위치
         Vector3 posUp = normalArr[0] * boxSize.y / 2f;
         Vector3 posDown = normalArr[1] * boxSize.y / 2f;
         Vector3 posLeft = normalArr[2] * boxSize.x / 2f;
         Vector3 posRight = normalArr[3] * boxSize.x / 2f;
-        Vector3 posFront = normalArr[4] * boxSize.x / 2f;
-        Vector3 posBack = normalArr[5] * boxSize.x / 2f;
+        Vector3 posFront = normalArr[4] * boxSize.z / 2f;
+        Vector3 posBack = normalArr[5] * boxSize.z / 2f;
 
         // 각 노말에서 B까지의 선 그리기
         GraphHelp.Line (posA + posUp, posB, Color.blue);
@@ -224,3 +226,5 @@ public class Graph_VectorMath : Graph
     //==========================================================//
 
 }
+
+#endif

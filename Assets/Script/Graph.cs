@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+
+using UnityEngine;
 
 public class Graph : MonoBehaviour
 {
@@ -9,3 +11,5 @@ public class Graph : MonoBehaviour
         GraphHelp.DrawGraph ();
     }
 }
+
+#endif

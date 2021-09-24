@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+
+using UnityEngine;
 
 public class DragBind : MonoBehaviour
 {
@@ -17,3 +19,5 @@ public class DragBind : MonoBehaviour
         dragPos = updatePos;
     }
 }
+
+#endif

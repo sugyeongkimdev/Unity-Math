@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+
+using UnityEngine;
 
 public class RotateBind : MonoBehaviour
 {
@@ -14,3 +16,4 @@ public class RotateBind : MonoBehaviour
     }
 
 }
+#endif

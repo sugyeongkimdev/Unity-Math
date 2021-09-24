@@ -1,6 +1,7 @@
+#if UNITY_EDITOR
+
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 
 public static class GraphHelp
 {
@@ -60,7 +61,7 @@ public static class GraphHelp
 
     // 베지어 커브 그리기 (Bezier)
     // 덤으로 커브 중간 위치를 반환함
-    public static Vector3 Bezier (Vector3 startPos, Vector3 endPos, Color? color = null, float strength = 1f)
+    public static Vector3 Bezier (Vector3 startPos, Vector3 endPos, bool reverse, Color? color = null, float strength = 1f)
     {
         // 서로 위치가 같으면 커브를 그릴 수 없음
         if(startPos == endPos)
@@ -73,17 +74,7 @@ public static class GraphHelp
         float dist = Vector3.Distance (startPos, endPos) / 5f;
         Vector3 dPos = endPos - startPos;
         Vector3 offPos = new Vector3 (-dPos.y, dPos.x, -dPos.z) / Mathf.Sqrt (Mathf.Pow (dPos.x, 2) + Mathf.Pow (dPos.y, 2) + Mathf.Pow (dPos.z, 2)) * strength * dist;
-
-        // 곡선이 삼각형 안쪽에 있을 경우 곡선을 뒤집음
-        // 필요없으면 주석처리
-        if(dPos.x <= zero.x)
-        {
-            offPos *= -1;
-        }
-        if(dPos.y <= zero.y)
-        {
-            offPos *= -1;
-        }
+        offPos *= reverse ? -1f : 1f;
 
         // 베지어 커브 곡선 보간 위치 만들기
         Vector3 startTarget = Vector3.Lerp (startPos, endPos, 0.25f) + offPos;
@@ -101,11 +92,11 @@ public static class GraphHelp
 
     // 박스 그리기
     // 각 면의 노말값 반환
-    public static Vector3[] Box (Vector3 pos, float width, float height, Vector2 rotate = new Vector2(), Color? color = null, float thick =1f)
+    public static Vector3[] Box (Vector3 pos, Vector3 size, Vector2 rotate = new Vector2 (), Color? color = null, float thick = 1f)
     {
-        float x = width / 2f;
-        float y = height / 2f;
-        float z = height / 2f;
+        float x = Mathf.Clamp (size.x / 2f, 0.0001f, float.MaxValue);
+        float y = Mathf.Clamp (size.y / 2f, 0.0001f, float.MaxValue);
+        float z = Mathf.Clamp (size.z / 2f, 0.0001f, float.MaxValue);
 
         // 각 포지션, u - up, d - down, l - left, r - right, f - front, b - back
         Vector3 ful = RotateVector (new Vector3 (-x, y, -z));
@@ -244,10 +235,12 @@ public static class GraphHelp
         Gizmos.DrawSphere (pos, size);
     }
     // 선 구체 그리기
-    public static void WireSphere (Vector3 pos, Color? color = null, float size = 0.1f)
+    public static void Disk (Vector3 pos, Color? color = null, float size = 0.1f)
     {
-        Gizmos.color = color.HasValue ? color.Value : Color.white;
-        Gizmos.DrawWireSphere (pos, size);
+        Handles.color = color.HasValue ? color.Value : Color.white;
+        Handles.DrawWireDisc (pos, Vector3.forward, size);
+        //Gizmos.DrawWireSphere (pos, size);
     }
 
 }
+#endif
